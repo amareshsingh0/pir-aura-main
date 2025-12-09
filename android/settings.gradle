@@ -1,0 +1,11 @@
+rootProject.name = "android"
+
+include(":app")
+include ':capacitor-android'
+include(":capacitor-cordova-android-plugins")
+
+// If Capacitor Android library exists
+if (file("../node_modules/@capacitor/android/capacitor").exists()) {
+    include(":capacitor-android")
+    project(":capacitor-android").projectDir = file("../node_modules/@capacitor/android/capacitor")
+}
