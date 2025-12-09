@@ -29,6 +29,10 @@ type Section = "dashboard" | "rooms" | "devices" | "energy" | "rules" | "scenes"
 type Theme = "light" | "dark" | "auto";
 
 export const SmartDashboard = () => {
+  // Add this with your other state variables at the top of SmartDashboard component
+  const [chartType, setChartType] = useState<'hourly' | 'daily' | 'weekly'>('hourly');
+  const analyticsContainerRef = useRef<HTMLDivElement>(null);
+
   const isMobile = useIsMobile();
   const [activeSection, setActiveSection] = useState<Section>("dashboard");
   const [currentTime, setCurrentTime] = useState("");
@@ -479,23 +483,24 @@ export const SmartDashboard = () => {
               </div>
             </div>
           </Widget>
-        <Widget title={language === "hi" ? "PIR सेंसर" : "PIR Sensors"}>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-2 bg-background/50 rounded-lg">
-              <span className="text-sm">Main Sensor</span>
-              <span className={`text-xs ${data.isOffline ? "text-destructive" : "text-success"}`}>
-                {data.isOffline ? "OFFLINE" : "ONLINE"}
-              </span>
+          <Widget title={language === "hi" ? "PIR सेंसर" : "PIR Sensors"}>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-2 bg-background/50 rounded-lg">
+                <span className="text-sm">Main Sensor</span>
+                <span className={`text-xs ${data.isOffline ? "text-destructive" : "text-success"}`}>
+                  {data.isOffline ? "OFFLINE" : "ONLINE"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between p-2 bg-background/50 rounded-lg">
+                <span className="text-sm">{language === "hi" ? "कुल डिटेक्शन" : "Total Detections"}</span>
+                <span className="text-xs">{data.todayCount}</span>
+              </div>
             </div>
-            <div className="flex items-center justify-between p-2 bg-background/50 rounded-lg">
-              <span className="text-sm">{language === "hi" ? "कुल डिटेक्शन" : "Total Detections"}</span>
-              <span className="text-xs">{data.todayCount}</span>
-            </div>
-          </div>
-        </Widget>
+          </Widget>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderEnergyContent = () => (
     <div className="space-y-6">
@@ -564,12 +569,9 @@ export const SmartDashboard = () => {
     <div className="space-y-6">
       <h2 className="text-2xl font-display font-bold">{language === "hi" ? "स्मार्ट सीन" : "Smart Scenes"}</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Scene cards will be rendered here */}
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-          <h3 className="font-medium">{language === "hi" ? "शाम का मोड" : "Evening Mode"}</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{language === "hi" ? "शाम के लिए लाइट सेटिंग्स" : "Light settings for evening"}</p>
+        <Widget title={language === "hi" ? "शाम का मोड" : "Evening Mode"}>
           <div className="space-y-2">
-            <p className="text-xs text-muted-foreground mb-3">{language === "hi" ? "रात का मोड" : "Night mode"}</p>
+            <p className="text-xs text-muted-foreground mb-3">{language === "hi" ? "शाम के लिए लाइट सेटिंग्स" : "Light settings for evening"}</p>
             <div className="flex items-center justify-between">
               <span className="text-sm">{language === "hi" ? "स्थिति" : "Status"}</span>
               <span className="text-xs text-muted-foreground">Inactive</span>
@@ -667,62 +669,91 @@ export const SmartDashboard = () => {
     );
   };
 
-  // Add scroll effect to the main component body
-  useEffect(() => {
-    if (activeSection === 'analytics') {
-      window.scrollTo(0, 0);
-    }
-  }, [activeSection]);
+  const renderAnalyticsContent = () => {
+    // DON'T call useState here - use the chartType from parent
 
-  const renderAnalyticsContent = () => (
-    <div className="space-y-6">
-      <h2 className="text-2xl xs:text-3xl font-display font-bold">
-        {language === "hi" ? "उन्नत एनालिटिक्स" : "Advanced Analytics"}
-      </h2>
-      
-      {/* Motion Heatmap */}
-      <div className="min-h-[400px]">
-        <MotionHeatmap historyData={data.historyData} language={language} />
-      </div>
-      
-      {/* Motion Timeline */}
-      <div className="min-h-[300px]">
-        <MotionTimeline historyData={data.historyData} language={language} />
-      </div>
-      
-      {/* Comparison and Frequency */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="min-h-[300px]">
-          <MotionComparison historyData={data.historyData} language={language} />
-        </div>
-        <div className="min-h-[300px]">
-          <MotionFrequency historyData={data.historyData} language={language} />
-        </div>
+    return (
+      <div className="space-y-6">
+        <h2 className="text-2xl xs:text-3xl font-display font-bold">
+          {language === "hi" ? "उन्नत एनालिटिक्स" : "Advanced Analytics"}
+        </h2>
+        
+        {/* Motion Heatmap */}
+        <div className="glass rounded-xl p-4 xs:p-5 sm:p-6">
+          <MotionHeatmap historyData={data.historyData} language={language} />
         </div>
         
-        {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Widget title={language === "hi" ? "घंटेवार चार्ट" : "Hourly Chart"}>
-            <div className="h-64">
-              <HourlyChart historyData={data.historyData} />
+        {/* Motion Timeline */}
+        <div className="glass rounded-xl p-4 xs:p-5 sm:p-6">
+          <MotionTimeline historyData={data.historyData} language={language} />
+        </div>
+        
+        {/* Comparison and Frequency */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="glass rounded-xl p-4 xs:p-5 sm:p-6">
+            <MotionComparison historyData={data.historyData} language={language} />
+          </div>
+          <div className="glass rounded-xl p-4 xs:p-5 sm:p-6">
+            <MotionFrequency historyData={data.historyData} language={language} />
+          </div>
+        </div>
+          
+        {/* Charts Grid - All visible */}
+        <div className="space-y-6">
+          <h3 className="text-lg font-display font-bold">
+            {language === "hi" ? "विज़ुअलाइज़ेशन चार्ट" : "Visualization Charts"}
+          </h3>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Hourly Chart */}
+            <div className="glass rounded-xl p-4 xs:p-5 sm:p-6">
+              <h4 className="text-sm font-medium text-muted-foreground mb-4">
+                {language === "hi" ? "घंटेवार गति" : "Hourly Motion"}
+              </h4>
+              <div className="h-64">
+                <HourlyChart historyData={data.historyData} />
+              </div>
+              <p className="text-xs text-muted-foreground mt-3">
+                {language === "hi" 
+                  ? "आखिरी 24 घंटों में प्रति घंटे गति डिटेक्शन"
+                  : "Motion detections per hour in last 24h"}
+              </p>
             </div>
-          </Widget>
-          <Widget title={language === "hi" ? "दैनिक चार्ट" : "Daily Chart"}>
-            <div className="h-64">
-              <DailyChart historyData={data.historyData} />
+            
+            {/* Daily Chart */}
+            <div className="glass rounded-xl p-4 xs:p-5 sm:p-6">
+              <h4 className="text-sm font-medium text-muted-foreground mb-4">
+                {language === "hi" ? "दैनिक गति" : "Daily Motion"}
+              </h4>
+              <div className="h-64">
+                <DailyChart historyData={data.historyData} />
+              </div>
+              <p className="text-xs text-muted-foreground mt-3">
+                {language === "hi" 
+                  ? "आखिरी 7 दिनों में प्रति दिन गति डिटेक्शन"
+                  : "Motion detections per day in last 7 days"}
+              </p>
             </div>
-          </Widget>
-          <Widget title={language === "hi" ? "साप्ताहिक चार्ट" : "Weekly Chart"}>
-            <div className="h-64">
-              <WeeklyChart historyData={data.historyData} />
+            
+            {/* Weekly Chart */}
+            <div className="glass rounded-xl p-4 xs:p-5 sm:p-6">
+              <h4 className="text-sm font-medium text-muted-foreground mb-4">
+                {language === "hi" ? "साप्ताहिक वितरण" : "Weekly Distribution"}
+              </h4>
+              <div className="h-64">
+                <WeeklyChart historyData={data.historyData} />
+              </div>
+              <p className="text-xs text-muted-foreground mt-3">
+                {language === "hi" 
+                  ? "सप्ताह के दिनों के अनुसार गति डिटेक्शन"
+                  : "Motion distribution by day of week"}
+              </p>
             </div>
-          </Widget>
+          </div>
         </div>
       </div>
     );
   };
-
-
 
   const renderContent = () => {
     switch (activeSection) {
@@ -760,9 +791,10 @@ export const SmartDashboard = () => {
         />
       )}
 
-      <div className={`flex-1 ${!isSharedMode && !isMobile ? "ml-64" : isMobile ? "mt-16" : ""} pt-safe-top pb-safe-bottom overflow-y-auto`}>
+      {/* <div className={`flex-1 ${!isSharedMode && !isMobile ? "ml-64" : isMobile ? "mt-16" : ""} pt-safe-top pb-safe-bottom overflow-y-auto`}> */}
+      <div className={`flex-1 ${!isSharedMode && !isMobile ? "ml-64" : isMobile ? "mt-16" : ""} pt-safe-top pb-safe-bottom ${activeSection === 'analytics' ? 'no-auto-scroll' : 'overflow-y-auto'}`}>
         <div className="max-w-7xl mx-auto p-4 xs:p-5 sm:p-6 md:p-8">
-          {/* Header */}
+          {/* Header - REMOVED CLEAR HISTORY BUTTON */}
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl xs:text-3xl sm:text-4xl font-display font-bold gradient-text flex items-center gap-3">
@@ -787,12 +819,7 @@ export const SmartDashboard = () => {
               >
                 <Settings className="w-5 h-5" />
               </button>
-              <button 
-                onClick={() => clearHistory()}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
-              >
-                {language === "hi" ? "इतिहास साफ करें" : "Clear History"}
-              </button>
+              {/* REMOVED CLEAR HISTORY BUTTON - IT'S ALREADY IN SETTINGS */}
             </div>
           </div>
 

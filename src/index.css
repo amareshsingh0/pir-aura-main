@@ -95,6 +95,8 @@
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
+    /* Prevent pull-to-refresh on mobile */
+    overscroll-behavior-y: contain;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -106,12 +108,12 @@
     @apply touch-manipulation;
   }
 
-  /* Better scrollbar for mobile */
-  @media (max-width: 768px) {
+  /* FIXED: Better scrollbar for mobile - REMOVED the problematic rule */
+  /* @media (max-width: 768px) {
     * {
       -webkit-overflow-scrolling: touch;
     }
-  }
+  } */
 
   /* Android safe area support */
   @supports (padding: max(0px)) {
@@ -218,6 +220,25 @@
     right: max(1rem, calc(env(safe-area-inset-right, 0px) + 1rem));
   }
 
+  /* FIX: Prevent auto-scrolling in analytics section */
+  .no-auto-scroll {
+    -webkit-overflow-scrolling: auto !important;
+    overflow-anchor: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  .prevent-scroll-bounce {
+    overscroll-behavior: none !important;
+    touch-action: pan-y !important;
+  }
+
+  /* Fix for analytics section */
+  .analytics-section {
+    overscroll-behavior: contain;
+    scroll-snap-type: none;
+    -webkit-overflow-scrolling: auto;
+  }
+
   /* Android viewport fix */
   @supports (-webkit-touch-callout: none) {
     .min-h-screen {
@@ -229,17 +250,35 @@
   html {
     height: 100%;
     height: -webkit-fill-available;
+    /* Prevent scroll bouncing */
+    overscroll-behavior: none;
   }
 
   body {
     min-height: 100vh;
     min-height: -webkit-fill-available;
+    /* Prevent scroll bouncing on body */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: auto;
   }
 
   /* Fix for Android bottom navigation bar */
   @media (max-width: 768px) {
     body {
       padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+    }
+    
+    /* Apply only to specific containers, not globally */
+    .mobile-scroll-touch {
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Prevent auto-scrolling in analytics on mobile */
+    .mobile-analytics-fix {
+      -webkit-overflow-scrolling: auto;
+      overflow-anchor: none;
+      scroll-snap-type: none;
+      overscroll-behavior: contain;
     }
   }
 }
@@ -273,4 +312,89 @@
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
+}
+
+/* NEW: Add these classes to fix analytics scrolling */
+.prevent-momentum-scrolling {
+  -webkit-overflow-scrolling: auto !important;
+}
+
+.scroll-fix {
+  overflow-anchor: none;
+  overscroll-behavior: none;
+}
+
+/* Fix for the analytics container specifically */
+.analytics-container {
+  scroll-behavior: auto !important;
+  -webkit-overflow-scrolling: auto !important;
+  overscroll-behavior: none !important;
+  touch-action: pan-y !important;
+}
+
+/* Add this at the end of your CSS file */
+.analytics-fix {
+  overflow-anchor: none !important;
+  scroll-behavior: auto !important;
+  -webkit-overflow-scrolling: auto !important;
+  overscroll-behavior: none !important;
+  touch-action: pan-y !important;
+}
+
+.no-auto-scroll {
+  overflow: hidden !important;
+}
+
+/* Chart.js fixes */
+.chart-container {
+  position: relative;
+  width: 100%;
+  min-height: 300px;
+}
+
+.chartjs-render-monitor {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Ensure charts don't overflow */
+canvas {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Fix for chart tooltips */
+.chartjs-tooltip {
+  background: rgba(0, 0, 0, 0.8) !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(0, 212, 255, 0.3) !important;
+}
+
+/* Mobile chart fixes */
+@media (max-width: 768px) {
+  .chart-container {
+    min-height: 250px;
+  }
+  
+  .chart-legend {
+    font-size: 12px;
+  }
+}
+
+/* Dark mode chart fixes */
+.dark .chartjs-grid-line {
+  stroke: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .chartjs-tick {
+  fill: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Ensure chart fits in container */
+.chart-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
 }

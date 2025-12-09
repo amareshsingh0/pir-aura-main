@@ -58,14 +58,3 @@ export const GamificationPanel = ({ points, level, badges }: GamificationPanelPr
     </div>
   );
 };
-
-
-
-
-
-
-
-
-
-
-

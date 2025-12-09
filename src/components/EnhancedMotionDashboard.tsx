@@ -34,6 +34,10 @@ const EnhancedMotionDashboard = () => {
   const prevMotionRef = useRef(data.motionDetected);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Define supported languages
+  const supportedLanguages = ["en", "hi"] as const;
+  type SupportedLanguage = typeof supportedLanguages[number];
+
   // Voice commands
   const handleVoiceCommand = (command: string) => {
     if (command === "hey motion") {
@@ -157,8 +161,15 @@ const EnhancedMotionDashboard = () => {
     }
   };
 
+  // Function to toggle between supported languages
+  const toggleLanguage = () => {
+    const currentIndex = supportedLanguages.indexOf(language as SupportedLanguage);
+    const nextIndex = (currentIndex + 1) % supportedLanguages.length;
+    setLanguage(supportedLanguages[nextIndex] as any);
+  };
+
   return (
-    <div className="min-h-screen overflow-x-hidden relative safe-area" dir={language === "ar" || language === "ur" ? "rtl" : "ltr"}>
+    <div className="min-h-screen overflow-x-hidden relative safe-area" dir={language === "en" ? "ltr" : "rtl"}>
       <ParticleBackground />
       <ThemeSwitcher />
 
@@ -168,11 +179,12 @@ const EnhancedMotionDashboard = () => {
           <div className="flex items-center justify-between mb-2">
             <div className="flex gap-2">
               <button
-                onClick={() => setLanguage(language === "en" ? "hi" : language === "hi" ? "ar" : language === "ar" ? "ur" : "en")}
+                onClick={toggleLanguage}
                 className="p-2 glass rounded-lg hover:bg-white/20 transition"
                 title="Change Language"
               >
                 <Globe className="w-4 h-4" />
+                <span className="text-xs ml-1">{language.toUpperCase()}</span>
               </button>
             </div>
             <div className="flex gap-2">
@@ -334,6 +346,10 @@ const EnhancedMotionDashboard = () => {
                 <span className="text-sm xs:text-base sm:text-lg">Monthly Analytics</span>
               </div>
               {/* Analytics content */}
+              <div className="glass rounded-lg p-4">
+                <h3 className="font-display mb-3">Motion Analytics</h3>
+                <p className="text-muted-foreground">Detailed analytics coming soon...</p>
+              </div>
             </div>
           )}
 
@@ -393,4 +409,3 @@ const EnhancedMotionDashboard = () => {
 };
 
 export default EnhancedMotionDashboard;
-
