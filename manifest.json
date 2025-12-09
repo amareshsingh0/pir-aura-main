@@ -1,0 +1,15 @@
+{
+  "name": "PIR Motion Live Dashboard",
+  "short_name": "PIR Dashboard",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/pir.jpg",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
