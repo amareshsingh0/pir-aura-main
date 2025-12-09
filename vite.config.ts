@@ -4,7 +4,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
-  base: "/pir-aura-main/",
+  base: "/pir-aura-main/",   // <-- MOST IMPORTANT LINE
   server: {
     hmr: {
       overlay: false,
